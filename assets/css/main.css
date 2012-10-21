@@ -1,0 +1,15 @@
+body {
+	background-color: #002B36;
+}
+
+textarea {
+    background-color: #073642;
+	color: #eee8d5;
+	font-family: monospace;
+	outline: none;
+}
+
+pre {
+	background-color: #002B36;
+    border-color: #073642;
+}
