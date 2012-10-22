@@ -43,7 +43,6 @@ class SavePaste(webapp2.RequestHandler):
         paste = Paste()
         paste.id = gen_random_string(8)
         paste.content = self.request.get('content')
-        logging.info("Paste %s, %s", paste.id, paste.content)
         paste.put()
         self.redirect('/' + paste.id)
 
@@ -58,7 +57,6 @@ class CreatePaste(webapp2.RequestHandler):
 
 class ShowPaste(webapp2.RequestHandler):
     def get(self, paste_id):
-        logging.info("Querying paste_id %s", paste_id)
         query = db.Query(Paste)
         query.filter("id = ", paste_id)
         template_values = {"content": cgi.escape(query.get().content)}
