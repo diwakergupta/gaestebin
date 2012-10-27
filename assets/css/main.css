@@ -13,3 +13,7 @@ pre {
 	background-color: #002B36;
     border-color: #073642;
 }
+
+.padded {
+    padding: 20px;
+}

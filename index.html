@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Pastebin</title>
+		<title>Gaestebin</title>
         <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link href="/assets/css/main.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/solarized_dark.min.css">
@@ -14,7 +14,7 @@
 	</head>
 
 	<body>
-        <div class="container-fluid">
+        <div class="container-fluid padded">
             {% if content is defined %}
             <div class="row-fluid">
                 <div class="span12">
@@ -25,8 +25,7 @@
                 <div class="span4">
                 <a class="btn btn-primary" href="/"><i class="icon-plus icon-white"></i> New paste</a>
             </div>
-        </div>
-                {% else %}
+            {% else %}
             <div class="row-fluid">
                 <div class="span12">
                 <form action="/paste" method="post">
@@ -34,8 +33,7 @@
                     <div><button type="submit" class="btn btn-primary">Paste it!</button></div>
                 </form>
             </div>
-        </div>
-                {% endif %}
+            {% endif %}
         </div>
 	</body>
 </html>
