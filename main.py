@@ -14,14 +14,14 @@
 
 import cgi
 import jinja2
-import logging
 import os
 import random
 import string
 import webapp2
 
-from google.appengine.ext import db
+from google.appengine.api import memcache
 from google.appengine.api import users
+from google.appengine.ext import db
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
@@ -57,9 +57,13 @@ class CreatePaste(webapp2.RequestHandler):
 
 class ShowPaste(webapp2.RequestHandler):
     def get(self, paste_id):
-        query = db.Query(Paste)
-        query.filter("id = ", paste_id)
-        template_values = {"content": cgi.escape(query.get().content)}
+        paste = memcache.get(paste_id)
+        if paste is None:
+            query = db.Query(Paste)
+            query.filter("id = ", paste_id)
+            paste = query.get().content
+            memcache.add(paste_id, paste)
+        template_values = {"content": cgi.escape(paste)}
         template = jinja_environment.get_template('index.html')
         self.response.out.write(template.render(template_values))
 
