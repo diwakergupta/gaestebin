@@ -75,7 +75,10 @@ class ShowPaste(webapp2.RequestHandler):
         if paste is None:
             query = db.Query(Paste)
             query.filter("id = ", paste_id)
-            paste = query.get().content
+            entry = query.get()
+            if entry is None:
+                self.abort(404)
+            paste = entry.content
             memcache.add(paste_id, paste)
         template_values = {"content": cgi.escape(paste)}
         if 'delid' in self.request.cookies:
