@@ -44,7 +44,21 @@ class SavePaste(webapp2.RequestHandler):
         paste.id = gen_random_string(8)
         paste.content = self.request.get('content')
         paste.put()
+        self.response.set_cookie('delid', str(paste.key()))
         self.redirect('/' + paste.id)
+
+class DelPaste(webapp2.RequestHandler):
+    def post(self):
+        user = users.get_current_user()
+        if not user:
+            self.redirect(users.create_login_url(self.request.uri))
+        delid = self.request.get('delid')
+        if delid:
+            paste = Paste.get(delid)
+            if paste:
+                memcache.delete(paste.id)
+                paste.delete()
+        self.redirect('/')
 
 class CreatePaste(webapp2.RequestHandler):
     def get(self):
@@ -61,14 +75,21 @@ class ShowPaste(webapp2.RequestHandler):
         if paste is None:
             query = db.Query(Paste)
             query.filter("id = ", paste_id)
-            paste = query.get().content
+            entry = query.get()
+            if entry is None:
+                self.abort(404)
+            paste = entry.content
             memcache.add(paste_id, paste)
         template_values = {"content": cgi.escape(paste)}
+        if 'delid' in self.request.cookies:
+            template_values['delid'] = self.request.cookies.get('delid')
+            self.response.delete_cookie('delid')
         template = jinja_environment.get_template('index.html')
         self.response.out.write(template.render(template_values))
 
 app = webapp2.WSGIApplication([
     (r'/', CreatePaste),
     (r'/paste', SavePaste),
+    (r'/oops', DelPaste),
     (r'/(\S+)', ShowPaste)
     ])
