@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Gaestebin</title>
+        <title>
+        {% if title is defined %}
+        {{ title }} -
+        {% endif %}
+        Gaestebin
+        </title>
         <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link href="//fonts.googleapis.com/css?family=Droid+Sans+Mono" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/solarized_dark.min.css">
@@ -17,6 +22,11 @@
 
 	<body>
         <div class="container-fluid padded">
+            {% if title is defined %}
+            <div class="row-fluid">
+                <p class="text-info">{{ title }}</p>
+            </div>
+            {% endif %}
             {% if content is defined %}
             <div class="row-fluid">
                 <div class="span12">
@@ -46,6 +56,7 @@
                 <div class="span12">
                 <form action="/paste" method="post">
                     <textarea class="span8" spellcheck="false" name="content" rows="30" autofocus placeholder="Paste here"></textarea>
+                    <textarea class="span8" spellcheck="false" name="title" rows="1" placeholder="Optional title"></textarea>
                     <div><button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i> Paste it!</button></div>
                 </form>
                 </div>
