@@ -23,6 +23,11 @@
                 <pre><code>{{ content }}</code></pre>
                 </div>
             </div>
+            {% if email is defined %}
+            <div class="row-fluid">
+                <p class="text-info"><em>Pasted by {{ email }} on {{ ts }}</em></p>
+            </div>
+            {% endif %}
             <div class="row-fluid">
                 <div class="span4">
                 {% if delid is defined %}
