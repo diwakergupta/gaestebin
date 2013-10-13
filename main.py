@@ -30,6 +30,15 @@ class Paste(db.Model):
     id = db.StringProperty()
     content = db.TextProperty()
     timestamp = date = db.DateTimeProperty(auto_now_add=True)
+    email = db.EmailProperty()
+
+    def to_memcache(self):
+        if self.email:
+            # New schema includes attribution metadata
+            return {'content': self.content,
+                    'email': self.email,
+                    'ts': self.timestamp}
+        return {'content': self.content}
 
 def gen_random_string(length):
     chars = string.letters + string.digits
@@ -43,8 +52,9 @@ class SavePaste(webapp2.RequestHandler):
         paste = Paste()
         paste.id = gen_random_string(8)
         paste.content = self.request.get('content')
+        paste.email = user.email()
         paste.put()
-        memcache.add(paste.id, paste.content)
+        memcache.add(paste.id, paste.to_memcache())
         self.response.set_cookie('delid', str(paste.key()))
         self.redirect('/' + paste.id)
 
@@ -73,15 +83,20 @@ class CreatePaste(webapp2.RequestHandler):
 class ShowPaste(webapp2.RequestHandler):
     def get(self, paste_id):
         paste = memcache.get(paste_id)
-        if paste is None:
+        if paste is None or not isinstance(paste, dict):
             query = db.Query(Paste)
             query.filter("id = ", paste_id)
             entry = query.get()
             if entry is None:
                 self.abort(404)
-            paste = entry.content
-            memcache.add(paste_id, paste)
-        template_values = {"content": cgi.escape(paste)}
+            paste = entry.to_memcache()
+            memcache.set(paste_id, paste)
+
+        # Don't show the email if the user is not authenticated
+        user = users.get_current_user()
+        template_values = {k: cgi.escape(str(v)) for k, v in paste.iteritems()
+                if k != 'email' or user}
+
         if 'delid' in self.request.cookies:
             template_values['delid'] = self.request.cookies.get('delid')
             self.response.delete_cookie('delid')
