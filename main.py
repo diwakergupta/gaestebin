@@ -97,7 +97,7 @@ class ShowPaste(webapp2.RequestHandler):
 
         # Don't show the email if the user is not authenticated
         user = users.get_current_user()
-        template_values = {k: cgi.escape(str(v)) for k, v in paste.iteritems()
+        template_values = {k: cgi.escape(unicode(v)) for k, v in paste.iteritems()
                 if k != 'email' or user}
 
         if 'delid' in self.request.cookies:
