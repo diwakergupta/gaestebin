@@ -28,6 +28,7 @@ jinja_environment = jinja2.Environment(
 
 class Paste(db.Model):
     id = db.StringProperty()
+    title = db.TextProperty()
     content = db.TextProperty()
     timestamp = date = db.DateTimeProperty(auto_now_add=True)
     email = db.EmailProperty()
@@ -37,6 +38,7 @@ class Paste(db.Model):
             # New schema includes attribution metadata
             return {'content': self.content,
                     'email': self.email,
+                    'title': self.title,
                     'ts': self.timestamp}
         return {'content': self.content}
 
@@ -53,6 +55,7 @@ class SavePaste(webapp2.RequestHandler):
         paste.id = gen_random_string(8)
         paste.content = self.request.get('content')
         paste.email = user.email()
+        paste.title = self.request.get('title')
         paste.put()
         memcache.add(paste.id, paste.to_memcache())
         self.response.set_cookie('delid', str(paste.key()))
