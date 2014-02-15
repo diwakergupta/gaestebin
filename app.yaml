@@ -1,4 +1,4 @@
-# Copyright 2012 Diwaker Gupta
+# Copyright 2012-2014 Diwaker Gupta
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,24 +13,21 @@
 # limitations under the License.
 
 application: gaestebin
-version: 1
-runtime: python27
-api_version: 1
-threadsafe: yes
+version: 2
+runtime: go
+api_version: go1
 
 handlers:
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
+- url: /js
+  static_dir: js
 
-- url: /assets
-  static_dir: assets
+- url: /css
+  static_dir: css
 
-- url: .*
-  script: main.app
+- url: /paste/.*
+  script: _go_app
 
-libraries:
-- name: webapp2
-  version: latest
-- name: jinja2
-  version: latest
+- url: /.*
+  static_files: index.html
+  upload: index\.html
+  login: required

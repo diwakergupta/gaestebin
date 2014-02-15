@@ -1,0 +1,23 @@
+body, pre, code {
+    background-color: #002B36;
+    color: #839496;
+    font-family: "Source Code Pro", monospace;
+}
+
+.form-control {
+    background-color: #073642;
+    color: #eee8d5;
+    font-family: "Source Code Pro", monospace;
+}
+
+pre {
+    border-color: #073642;
+}
+
+button {
+    font-family: "Source Code Pro", monospace;
+}
+
+#content {
+    padding: 20px;
+}
