@@ -36,7 +36,7 @@
         <p class="text-info"> {{paste.Title}} </p>
     </div></div>
     <div ng-show="paste.Email" class="row"><div class="col-md-10">
-        <p class="text-info"> Pasted by {{paste.Email}} on {{paste.Timestamp}} </p>
+        <p class="text-info"> Pasted by {{paste.Email}} on {{paste.Timestamp|date:'medium'}} </p>
     </div></div>
     <div class="row"><div class="col-md-4">
         <button type="button" class="btn btn-primary" ng-click="resetPaste()"><span class="glyphicon glyphicon-plus"></span> New Paste</button>
