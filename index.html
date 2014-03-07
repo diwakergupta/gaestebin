@@ -40,7 +40,7 @@
     </div></div>
     <div class="row"><div class="col-md-4">
         <button type="button" class="btn btn-primary" ng-click="resetPaste()"><span class="glyphicon glyphicon-plus"></span> New Paste</button>
-        <button type="button" class="btn btn-primary" ng-click="deletePaste()"><span class="glyphicon glyphicon-trash"></span> Delete Paste</button>
+        <button ng-show="paste.IsOwner" type="button" class="btn btn-primary" ng-click="deletePaste()"><span class="glyphicon glyphicon-trash"></span> Delete Paste</button>
     </div></div>
 </div>
 

@@ -42,6 +42,8 @@ type Paste struct {
 	// Optional/Best-effort
 	Title    string `datastore:"title"`
 	Language string `datastore:"language"`
+	// Used for deletes, not persisted
+	IsOwner bool `datastore:"-"`
 }
 
 // Handler for Paste API
@@ -76,7 +78,7 @@ func (handler PasteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err == memcache.ErrCacheMiss {
 			// First look up directly by pasteId for new pastes
 			key := datastore.NewKey(c, "Paste", pasteId, 0, nil)
-			err := datastore.Get(c, key, paste)
+			err := datastore.Get(c, key, &paste)
 			// If not found, try again with a query for v1 pastes
 			if err != nil {
 				q := datastore.NewQuery("Paste").Filter("id =", pasteId)
@@ -94,6 +96,7 @@ func (handler PasteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			c.Infof("Found %v in memcache", pasteId)
 		}
+		paste.IsOwner = (paste.Email == u.Email)
 
 		// Send paste back as JSON
 		encoder := json.NewEncoder(w)
@@ -117,6 +120,7 @@ func (handler PasteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		paste.Id = GenerateRandomString(8)
 		paste.Timestamp = time.Now()
 		paste.Email = u.Email
+		paste.IsOwner = (paste.Email == u.Email)
 
 		// Create a key using pasteId and save to datastore
 		key := datastore.NewKey(c, "Paste", paste.Id, 0, nil)
@@ -146,8 +150,24 @@ func (handler PasteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		pasteId := match[1]
 		key := datastore.NewKey(c, "Paste", pasteId, 0, nil)
+
+		// Look up the paste to match user
+		var paste Paste
+		if err := datastore.Get(c, key, &paste); err != nil {
+			c.Infof(err.Error())
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		if paste.Email != u.Email {
+			c.Infof("Bad owner")
+			http.Error(w, "Bad Owner", http.StatusForbidden)
+			return
+		}
+
 		if err := datastore.Delete(c, key); err != nil {
-			http.Error(w, err.Error(), 500)
+			c.Infof(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		memcache.Delete(c, pasteId)
