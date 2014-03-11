@@ -11,6 +11,11 @@ angular.module('gaestebin', ['ngResource'])
         return Paste;
     })
     .controller('PasteCtrl', function($scope, $sce, $location, Paste) {
+        // Extract pasteId from URL if present
+        $scope.pasteId = $location.path().substring(1);
+        // Used for displaying the Paste URL
+        $scope.baseUrl = $location.absUrl().replace($location.path(), "");
+
         // Helper to create a Paste and highlight the contents
         var highlightPaste = function(data) {
             $scope.paste = data;
@@ -19,6 +24,7 @@ angular.module('gaestebin', ['ngResource'])
         }
 
         $scope.resetPaste = function() {
+            $scope.pasteId = undefined;
             $scope.paste = undefined;
             $scope.pasteContent = undefined;
             $scope.pasteTitle = undefined;
@@ -50,19 +56,21 @@ angular.module('gaestebin', ['ngResource'])
             });
         };
 
-        // Used for displaying the Paste URL
-        $scope.baseUrl = $location.absUrl().replace($location.path(), "");
-        // Extract pasteId from URL if present
-        var pasteId = $location.path().substring(1);
+        $scope.showForm = function() {
+            return !($scope.pasteId || $scope.paste);
+        }
+
         // Only issue a GET if:
         // - we have a pasteID and
         // - scope.paste has an id that doesn't match
         // This allows us to display new pastes without a page reload
-        if (pasteId.length > 0 && (!$scope.paste || $scope.paste.Id != pasteId)) {
-            Paste.get({pasteId: pasteId}, function(data) {
+        if ($scope.pasteId.length > 0 &&
+            (!$scope.paste || $scope.paste.Id != $scope.pasteId)) {
+            Paste.get({pasteId: $scope.pasteId}, function(data) {
                 highlightPaste(data);
             }, function(response) {
                 console.log(response);
+                $scope.resetPaste();
             });
         }
     });
