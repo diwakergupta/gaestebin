@@ -59,6 +59,7 @@ func (handler PasteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	// Regexp used to extract pasteId from URI path
 	idRegexp := regexp.MustCompile(`/paste/v1/([^/]+)`)
 	switch r.Method {
